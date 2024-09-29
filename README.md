@@ -1,4 +1,4 @@
-# Migration_from_L3VPN_to_EVPN_Type5
+# Consolidating_WAN_Backbone_with_EVPN
 ## Abstract
 Communication Service Providers (CSPs) have matured their deployments for L3VPN (RFC 4364), L2VPNs (RFC 4664), LDP-based pseudowires (RFC 4447), BGP-based VPLS (RFC 4761), and LDP-based VPLS (RFC 4762) to provide Layer 2 and Layer 3 connectivity for their customers. If you find the multitude of standards and RFCs needed to establish Layer 2 connectivity across WAN backbone networks overwhelming, you’re not alone—many feel the same when navigating the extensive array of standards related to Layer 2 connectivity over WANs. EVPN simplifies these complexities by providing a clear solution. Utilizing BGP, EVPN streamlines Layer 2 and Layer 3 VPN services over an MPLS or IP backbone, reducing the need to grasp various RFCs and standards. This unification of L2 and L3 services into a single framework makes configuration much easier compared to older standards like LDP-based VPLS or BGP/MPLS L3VPN.
 
