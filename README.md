@@ -120,7 +120,7 @@ policy-options {
 }
 ```
 
-### Operational Verification from Sender PE
+### Operational Verification from Left-Side PE
 ```
 show bgp summary group CE1 
 Peer                     AS      InPkt     OutPkt    OutQ   Flaps Last Up/Dwn State|#Active/Received/Accepted/Damped...
@@ -138,18 +138,13 @@ vrf_sriov_1001.inet.0: 8 destinations, 12 routes (8 active, 0 holddown, 0 hidden
 
 show bgp summary group mpls-bb 
 Peer                     AS      InPkt     OutPkt    OutQ   Flaps Last Up/Dwn State|#Active/Received/Accepted/Damped...
-172.172.172.2         65000      22786      22747       0       0 1w0d 5:34:07 Establ
-  bgp.evpn.0: 1/1/1/0
-  vrf_sriov_1001.evpn.0: 1/1/1/0
+
 172.172.172.9         65000      22830      22664       0       1 1w0d 4:55:33 Establ
   bgp.evpn.0: 1/1/1/0
   vrf_sriov_1001.evpn.0: 1/1/1/0
   bgp.l3vpn.0: 0/0/0/0
   bgp.invpnflow.0: 0/0/0/0
-172.172.172.10        65000      22894      22722       0       0 1w0d 5:23:06 Establ
-  bgp.evpn.0: 1/1/1/0
-  vrf_sriov_1001.evpn.0: 1/1/1/0
-  bgp.l3vpn.0: 0/0/0/0
+
 
 
 show route advertising-protocol bgp 172.172.172.9 table vrf_sriov_1001.evpn.0 
@@ -164,7 +159,7 @@ vrf_sriov_1001.evpn.0: 8 destinations, 8 routes (8 active, 0 holddown, 0 hidden)
 *                         Self                         100        65100 I
 ```
 
-#### Receiver Router
+#### Operational Verification from Right-Side PE
 
 ```
 show bgp summary group mpls-bb
@@ -175,14 +170,6 @@ Peer                     AS      InPkt     OutPkt    OutQ   Flaps Last Up/Dwn St
   bgp.evpn.0: 5/5/5/0
   vrf_sriov_1001.inetflow.0: 1/1/1/0
   vrf_sriov_1001.evpn.0: 5/5/5/0
-172.172.172.2         65000      22708      22832       0       0 1w0d 4:58:24 Establ
-  bgp.evpn.0: 1/3/3/0
-  vrf_sriov_1001.evpn.0: 1/3/3/0
-172.172.172.10        65000      22835      22833       0       0 1w0d 4:58:24 Establ
-  bgp.l3vpn.0: 0/0/0/0
-  bgp.evpn.0: 1/1/1/0
-  vrf_sriov_1001.evpn.0: 1/1/1/0
-
 
  show route receive-protocol bgp 172.172.172.1 table vrf_sriov_1001.evpn.0 
 
@@ -225,29 +212,7 @@ vrf_sriov_1001.evpn.0: 8 destinations, 10 routes (8 active, 0 holddown, 0 hidden
 5:172.172.172.9:1001::0::100.100.253.0::24/248               
                    *[EVPN/170] 1w2d 04:49:29
                        Fictitious
-5:172.172.172.10:100::0::100.100.253.0::24/248               
-                   *[BGP/170] 1w0d 05:01:44, localpref 100, from 172.172.172.10
-                      AS path: 65110 I, validation-state: unverified
-                    >  to 10.0.1.41 via et-0/0/3.0, label-switched-path right-side-PE1-right-side-PE2
-                       to 10.0.1.32 via et-0/0/2.0, label-switched-path Bypass->10.0.1.41
-5:172.172.172.12:100::0::100.100.248.0::23/248               
-                   *[BGP/170] 1w0d 04:30:32, localpref 100, from 172.172.172.1
-                      AS path: 65100 I, validation-state: unverified
-                    >  to 10.0.1.32 via et-0/0/2.0, label-switched-path right-side-PE1-to-left-side-PE3-1
-                       to 10.0.1.38 via et-0/0/4.0, label-switched-path Bypass->10.0.1.32->10.0.1.26
-                    [BGP/170] 1w0d 04:30:32, localpref 100, from 172.172.172.2
-                      AS path: 65100 I, validation-state: unverified
-                    >  to 10.0.1.32 via et-0/0/2.0, label-switched-path right-side-PE1-to-left-side-PE3-1
-                       to 10.0.1.38 via et-0/0/4.0, label-switched-path Bypass->10.0.1.32->10.0.1.26
-5:172.172.172.13:100::0::100.100.248.0::23/248               
-                   *[BGP/170] 1w0d 05:01:44, localpref 100, from 172.172.172.1
-                      AS path: 65100 I, validation-state: unverified
-                    >  to 10.0.1.38 via et-0/0/4.0, label-switched-path right-side-PE1-to-left-side-PE4-1
-                       to 10.0.1.32 via et-0/0/2.0, label-switched-path Bypass->10.0.1.38->10.0.1.28
-                    [BGP/170] 1w0d 05:01:44, localpref 100, from 172.172.172.2
-                      AS path: 65100 I, validation-state: unverified
-                    >  to 10.0.1.38 via et-0/0/4.0, label-switched-path right-side-PE1-to-left-side-PE4-1
-                       to 10.0.1.32 via et-0/0/2.0, label-switched-path Bypass->10.0.1.38->10.0.1.28
+
                        
 
 show route table vrf_sriov_1001.inet.0 
@@ -266,20 +231,6 @@ vrf_sriov_1001.inet.0: 6 destinations, 10 routes (6 active, 0 holddown, 0 hidden
                     >  to 10.0.1.38 via et-0/0/4.0, label-switched-path right-side-PE2-to-left-side-PE1
                        to 10.0.1.32 via et-0/0/2.0, label-switched-path Bypass->10.0.1.38->10.0.1.28
                     [EVPN/170] 1w0d 04:59:48
-                    >  to 10.0.1.38 via et-0/0/4.0, label-switched-path right-side-PE1-to-left-side-PE2-1
-                       to 10.0.1.32 via et-0/0/2.0, label-switched-path Bypass->10.0.1.38->10.0.1.24
-                    [EVPN/170] 1w0d 04:28:36
-                    >  to 10.0.1.32 via et-0/0/2.0, label-switched-path right-side-PE1-to-left-side-PE3-1
-                       to 10.0.1.38 via et-0/0/4.0, label-switched-path Bypass->10.0.1.32->10.0.1.26
-                    [EVPN/170] 1w0d 04:59:48
-                    >  to 10.0.1.38 via et-0/0/4.0, label-switched-path right-side-PE1-to-left-side-PE4-1
-                       to 10.0.1.32 via et-0/0/2.0, label-switched-path Bypass->10.0.1.38->10.0.1.28
-100.100.253.0/24   *[BGP/170] 1w2d 04:47:33, localpref 100
-                      AS path: 65110 I, validation-state: unverified
-                    >  to 100.100.100.4 via et-0/0/0.100
-                    [EVPN/170] 1w0d 04:59:48
-                    >  to 10.0.1.41 via et-0/0/3.0, label-switched-path right-side-PE1-right-side-PE2
-                       to 10.0.1.32 via et-0/0/2.0, label-switched-path Bypass->10.0.1.41
 100.100.254.0/24   *[EVPN/170] 00:05:53
                     >  to 10.0.1.38 via et-0/0/4.0, label-switched-path right-side-PE2-to-left-side-PE1
                        to 10.0.1.32 via et-0/0/2.0, label-switched-path Bypass->10.0.1.38->10.0.1.28
