@@ -9,13 +9,13 @@ In this article, we will examine Junos' implementation of EVPN Type 5, which con
 ![topology](./images/topology.png)
 
 ## Methodology
-Routes learned from the CE (IP prefixes) via the eBGP group "CE1" will be converted into EVPN Type 5 routes using the routing policy "evpn_export." Subsequently, these routes will be advertised to remote PEs through MP-iBGP (EVPN signaling), with the vrf-export policy "vrf_export" controlling the advertisement of these EVPN Type 5 routes. On the remote PE, the vrf-import policy "vrf_import" will determine which IP-VPN prefixes are accepted from the advertising PE. Additionally, the EVPN import policy "evpn_import" will dictate which IP-VPN prefixes will be installed as EVPN Type 5 routes on the receiving PE. Once the EVPN Type 5 prefixes are installed on the receiving PE, they will be further redistributed to the CE via the policy "evpn-to-ce."
+Routes learned from the CE (IP prefixes) via the eBGP group "CE1" will be converted into EVPN Type 5 routes using the routing policy "evpn_export." Subsequently, these routes will be advertised to remote PEs through MP-iBGP (EVPN signaling), with the vrf-export policy "vrf_export" controlling the advertisement of these EVPN Type 5 routes. On the remote PE, the vrf-import policy "vrf_import" will determine which IP-VPN prefixes are accepted from the advertising PE. Additionally, the EVPN import policy "evpn_import" will dictate which IP-VPN prefixes will be installed as EVPN Type 5 routes on the receiving PE. Once the EVPN Type 5 prefixes are installed on the receiving PE, they will be further redistributed to the CE2 via the policy "evpn-to-ce."
 
 
 ## Configuration 
 All configurations are taken from the left-side PE.
 ### VRF Configuration Using EVPN Type 5 Routes
-Appended block of configuration provides funcationaliity to re-dsitrbute IP-VPN routes via MP-iBGP evpn signalling.  
+The appended block of configuration (evpn ip-prefix-routes advertise direct-nexthop) enables the conversion of IP prefixes into EVPN Type 5 routes, which are then redistributed as IP-VPN/EVPN Type 5 routes through MP-iBGP EVPN signaling.
 ```
 vrf_sriov_1001 {
     instance-type vrf;
@@ -212,7 +212,7 @@ vrf_sriov_1001.evpn.0: 8 destinations, 10 routes (8 active, 0 holddown, 0 hidden
   5:172.172.172.1:1001::0::100.100.254.0::24/248                   
 *                         172.172.172.1                100        65100 I
 ```
-### Acceptance and Installation of EVPN Type 5 Routes into the RIBs
+### Importing EVPN Type 5 Routes into the Relevant RIBs
 ```
 show route table vrf_sriov_1001.evpn.0                        
 
@@ -280,3 +280,5 @@ vrf_sriov_1001.inet.0: 6 destinations, 10 routes (6 active, 0 holddown, 0 hidden
 * 100.100.248.0/23        Self                                    65100 I
 * 100.100.254.0/24        Self                                    65100 I
 ```
+## Conclusion 
+Although the above write-up covers the advertisement of IP prefixes as EVPN Type 5 routes, EVPN signaling can also be used to advertise Layer 2 routes (for E-LAN and E-Line use cases), thus providing a unified control plane for signaling Layer 2 and Layer 3 connectivity across WAN backbone networks.
