@@ -7,34 +7,16 @@ In this article, we will examine Junos' implementation of EVPN Type 5, which con
 
 ## Topology 
 ![topology](./images/topology.png)
-## Current Layer-3 VPN Configuration
-The current Layer 3 VPN configuration from one of the Junos devices is shown below, and it's relatively straightforward to understand. A VRF named "test" has been created, which includes BGP connectivity to the CE through the BGP group "CE1." The VRF also applies the import and export policies "TEST_IMPORT" and "TEST_EXPORT" for routing control.
+
+## Methodology
+Routes learned from the CE (IP prefixes) via the eBGP group "CE1" will be converted into EVPN Type 5 routes using the routing policy "evpn_export." Subsequently, these routes will be advertised to remote PEs through MP-iBGP (EVPN signaling), with the vrf-export policy "vrf_export" controlling the advertisement of these EVPN Type 5 routes. On the remote PE, the vrf-import policy "vrf_import" will determine which IP-VPN prefixes are accepted from the advertising PE. Additionally, the EVPN import policy "evpn_import" will dictate which IP-VPN prefixes will be installed as EVPN Type 5 routes on the receiving PE. Once the EVPN Type 5 prefixes are installed on the receiving PE, they will be further redistributed to the CE via the policy "evpn-to-ce."
+
+
+## Configuration 
+All configurations are taken from the left-side PE.
+### VRF Configuration Using EVPN Type 5 Routes
+Appended block of configuration provides funcationaliity to re-dsitrbute IP-VPN routes via MP-iBGP evpn signalling.  
 ```
-left-side-PE config
- test {
-    instance-type vrf;
-    protocols {
-        bgp {
-            group CE1 {
-                type external;
-                peer-as 65100;
-                bfd-liveness-detection {
-                    minimum-interval 1000;
-                    multiplier 3;
-                }
-                neighbor 100.100.100.0;
-            }
-        }
-    }
-    route-distinguisher 172.172.172.1:100;
-    vrf-import TEST_IMPORT;
-    vrf-export TES_EXPORT;
-}
-```
-### EVPN Type5 Routes Configuration 
-Appended block of configuration provides funcationaliity to re-dsitrbute IP-VPN routes via MP-iBGP evpn signalling. 
-```
-left-side-PE config
 vrf_sriov_1001 {
     instance-type vrf;
     protocols {
@@ -65,22 +47,11 @@ vrf_sriov_1001 {
     vrf-import vrf_import;
     vrf-export vrf_export;
 }
-
-
 ```
-### Importing and Exporting IP Prefixes as EVPN Type 5 Routes
-Routes learned from the CE (IP prefixes) via the eBGP group "CE1" will be converted into EVPN Type 5 routes using the routing policy "evpn_export." Subsequently, these routes will be advertised to remote PEs through MP-iBGP (EVPN signaling), with the vrf-export policy "vrf_export" controlling the advertisement of these EVPN Type 5 routes. On the remote PE, the vrf-import policy "vrf_import" will determine which IP-VPN prefixes are accepted from the advertising PE. Additionally, the EVPN import policy "evpn_import" will dictate which IP-VPN prefixes will be installed as EVPN Type 5 routes on the receiving PE. Once the EVPN Type 5 prefixes are installed on the receiving PE, they will be further redistributed to the CE via the policy "evpn-to-ce."
-
-```    
-policy-options {
-    policy-statement evpn-to-ce {
-        term 1 {
-            from protocol evpn;
-            then accept;
-        }
-    }
-    
-    policy-statement evpn_export {
+### Routing Polices Configuration
+#### Exporting IP-Prefixes as EVPN Type 5 Routes 
+```
+policy-statement evpn_export {
         term bgp {
             from protocol bgp;
              then accept;
@@ -90,10 +61,10 @@ policy-options {
             then accept;
         }
         then accepts;
-    }
-    policy-statement evpn_import {
-        then accept;
-    }
+    }   
+```
+#### Exporting EVPN Type 5 Routes as IP-VPN Prefixes Towards Remote PE
+```
     policy-statement  vrf_export {
         term 1 {
             from rib vrf_sriov_1001.inet.0;
@@ -110,6 +81,10 @@ policy-options {
             }
         }
     }
+ community sriov members target:65000:1001;
+```
+#### Importing IP-VPN Prefixes from Remote PE
+```    
     policy-statement vrf_import {
         term 1 {
             from community sriov;
@@ -119,9 +94,23 @@ policy-options {
             then reject;
         }
     }
-  
- community sriov members target:65000:1001;
-}
+```
+#### Import IP-VPN Prefixes as EVPN Type 5 Routes 
+```
+    policy-statement evpn_import {
+        then accept;
+    }
+
+```
+#### Exporting EVPN Type 5 Prefixes to PE
+```
+policy-options {
+    policy-statement evpn-to-ce {
+        term 1 {
+            from protocol evpn;
+            then accept;
+        }
+    }
 ```
 
 ## Operational Verification from Left-Side PE
