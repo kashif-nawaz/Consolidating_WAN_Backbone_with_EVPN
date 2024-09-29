@@ -67,16 +67,7 @@ vrf_sriov_1001 {
 ### Importing and Exporting IP Prefixes as EVPN Type 5 Routes
 Routes learned from the CE (IP prefixes) via the eBGP group "CE1" will be converted into EVPN Type 5 routes using the routing policy "net-public-evpn-export." Subsequently, these routes will be advertised to remote PEs through MP-iBGP (EVPN signaling), with the vrf-export policy "sriov_export" controlling the advertisement of these EVPN Type 5 routes. On the remote PE, the vrf-import policy "sriov_import" will determine which IP-VPN prefixes are accepted from the advertising PE. Additionally, the EVPN import policy "net-public-evpn-export" will dictate which IP-VPN prefixes will be installed as EVPN Type 5 routes on the receiving PE. Once the EVPN Type 5 prefixes are installed on the receiving PE, they will be further redistributed to the CE via the policy "evpn-to-ce."
 
-```
-        evpn {
-            ip-prefix-routes {
-                advertise direct-nexthop;
-                encapsulation mpls;     
-                import net-public-evpn-import;
-                export net-public-evpn-export;
-            }
-        }
-    
+```    
 policy-options {
     policy-statement evpn-to-ce {
         term 1 {
